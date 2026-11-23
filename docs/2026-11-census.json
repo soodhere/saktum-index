@@ -1,0 +1,667 @@
+{
+ "generatedAt": "2026-11-22T20:53:09.201Z",
+ "method": "Saktum Check 0.2 (passive: no tool is called; install scripts disabled), npm registry metadata",
+ "broad": {
+  "discovered": 2808,
+  "npmTaggedMcpServer": 11968,
+  "scanned": 2808,
+  "runnable": 2679,
+  "usesMcpSdk": 47.1,
+  "provenance": 59.9,
+  "installScripts": 3.5,
+  "noRepository": 5.9,
+  "noLicence": 1.2,
+  "weeklyDownloadsCovered": 59872199
+ },
+ "deep": {
+  "attempted": 200,
+  "assessed": 103,
+  "couldNotStart": 94,
+  "noGrade": 3,
+  "weeklyDownloadsAssessed": 6332462,
+  "maturity": [
+   {
+    "level": 1,
+    "atLeast": 103
+   },
+   {
+    "level": 2,
+    "atLeast": 99
+   },
+   {
+    "level": 3,
+    "atLeast": 99
+   },
+   {
+    "level": 4,
+    "atLeast": 42
+   },
+   {
+    "level": 5,
+    "atLeast": 27
+   }
+  ],
+  "levelExactly": [
+   {
+    "level": 1,
+    "count": 4
+   },
+   {
+    "level": 2,
+    "count": 0
+   },
+   {
+    "level": 3,
+    "count": 57
+   },
+   {
+    "level": 4,
+    "count": 15
+   },
+   {
+    "level": 5,
+    "count": 27
+   }
+  ],
+  "quadrants": [
+   {
+    "quadrant": "Leaders",
+    "count": 42
+   },
+   {
+    "quadrant": "Safe but hard for agents",
+    "count": 61
+   },
+   {
+    "quadrant": "Agent-friendly but risky",
+    "count": 0
+   },
+   {
+    "quadrant": "Not ready",
+    "count": 0
+   }
+  ],
+  "points": [
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 97,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 91,
+    "y": 70,
+    "level": 1
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 42,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 98,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 64,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 50,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 85,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 94,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 93,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 97,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 45,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 95,
+    "level": 5
+   },
+   {
+    "x": 91,
+    "y": 70,
+    "level": 1
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 91,
+    "y": 70,
+    "level": 1
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 96,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 87,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 86,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 72,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 84,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 98,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 55,
+    "level": 3
+   },
+   {
+    "x": 91,
+    "y": 62,
+    "level": 1
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 61,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 95,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 94,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 58,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 46,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 98,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 64,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 82,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 57,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 99,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 5
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 65,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 56,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 70,
+    "level": 3
+   },
+   {
+    "x": 100,
+    "y": 100,
+    "level": 4
+   },
+   {
+    "x": 100,
+    "y": 30,
+    "level": 3
+   }
+  ],
+  "noAnnotations": 47.6,
+  "partialAnnotations": 7.8,
+  "readinessA": 40.8,
+  "tokensMedian": 3337,
+  "tokensP90": 34804,
+  "over20k": 15,
+  "toolsMedian": 11,
+  "toolsMax": 451,
+  "capabilities": [
+   {
+    "capability": "code-execution",
+    "count": 9,
+    "pct": 8.7
+   },
+   {
+    "capability": "network",
+    "count": 43,
+    "pct": 41.7
+   },
+   {
+    "capability": "filesystem",
+    "count": 5,
+    "pct": 4.9
+   },
+   {
+    "capability": "writes-or-deletes",
+    "count": 56,
+    "pct": 54.4
+   },
+   {
+    "capability": "sends-messages",
+    "count": 0,
+    "pct": 0
+   },
+   {
+    "capability": "money",
+    "count": 2,
+    "pct": 1.9
+   },
+   {
+    "capability": "reads-private-data",
+    "count": 5,
+    "pct": 4.9
+   },
+   {
+    "capability": "untrusted-content",
+    "count": 7,
+    "pct": 6.8
+   }
+  ],
+  "trifecta": 0,
+  "failingChecks": [
+   {
+    "check": "conf.tools.unknown-not-success",
+    "count": 3,
+    "pct": 2.9
+   },
+   {
+    "check": "conf.tools.schema-valid",
+    "count": 1,
+    "pct": 1
+   }
+  ],
+  "trustA": 100,
+  "deepProvenance": 54.4
+ }
+}

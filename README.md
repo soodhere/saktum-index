@@ -1,5 +1,7 @@
 # Saktum MCP Trust Census
 
+**Read the report:** [State of MCP Trust, November 2026](https://soodhere.github.io/saktum-index/) (aggregates only; no server is named).
+
 A monthly census of the public MCP server ecosystem with [Saktum Check](https://github.com/soodhere/saktum-check),
 producing the **State of MCP Trust** report: the Saktum MCP Maturity Model, the trust quadrant, ecosystem statistics and
 fixes for maintainers.

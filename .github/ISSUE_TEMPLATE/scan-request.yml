@@ -1,0 +1,7 @@
+name: Scan my MCP server
+description: Get a free Saktum Check report for an MCP server (passive; no tool is called).
+title: "Scan: "
+labels: [scan-request]
+body:
+  - type: markdown
+    attributes: { value: "Put the npm package (for example `@scope/my-mcp-server`) or the https URL of a remote server in the title after `Scan: `. A bot replies with the report in a few minutes." }

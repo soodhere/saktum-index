@@ -1,0 +1,65 @@
+# Saktum MCP Trust Census at scale: discovery and broad census, then the deep census sharded across parallel runners,
+# then aggregation. No secrets are used anywhere: untrusted packages run on disposable runners with nothing to steal.
+# Results stay as workflow artifacts (private to repository collaborators); nothing is published automatically.
+name: census
+on:
+  workflow_dispatch:
+    inputs:
+      deep_count: { description: "How many top servers to run Saktum Check on", default: "1000", required: true }
+      shards: { description: "Parallel runners (max 20)", default: "20", required: true }
+permissions:
+  contents: read
+jobs:
+  broad:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.m.outputs.shards }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node scripts/discover.mjs 3000 && node scripts/static.mjs
+      - id: m
+        run: echo "shards=$(node -e 'const n=Math.min(20,Number(process.argv[1]));console.log(JSON.stringify([...Array(n).keys()]))' ${{ inputs.shards }})" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with: { name: data, path: data/ }
+  deep:
+    needs: broad
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix: { shard: "${{ fromJSON(needs.broad.outputs.shards) }}" }
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/download-artifact@v4
+        with: { name: data, path: data/ }
+      - name: Install Saktum Check
+        run: npm install -g saktum@latest && echo "SAKTUM=$(npm root -g)/saktum/saktum.mjs" >> "$GITHUB_ENV"
+      - name: Deep census (passive; install scripts disabled; no secrets present)
+        run: |
+          PER=$(( ${{ inputs.deep_count }} / ${{ inputs.shards }} + 1 ))
+          node scripts/deep.mjs "$SAKTUM" "$PER" "$(( ${{ matrix.shard }} * PER ))" 6
+      - uses: actions/upload-artifact@v4
+        with: { name: "results-${{ matrix.shard }}", path: results/ }
+  aggregate:
+    needs: deep
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: actions/download-artifact@v4
+        with: { name: data, path: data/ }
+      - uses: actions/download-artifact@v4
+        with: { pattern: "results-*", path: results/, merge-multiple: true }
+      - run: node scripts/aggregate.mjs && node scripts/render.mjs
+      - uses: actions/upload-artifact@v4
+        with: { name: census-report, path: report/ }

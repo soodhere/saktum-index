@@ -1,0 +1,54 @@
+# Issue-ops scan bot: open an issue titled "Scan: <npm package or https URL>" and the bot replies with a Saktum Check
+# report. Untrusted code runs only in the scan job, which has a read-only token and no checkout credentials; the comment
+# job, which can write to issues, never runs untrusted code. Passive only: no tool is called.
+name: scan-request
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  scan:
+    if: startsWith(github.event.issue.title, 'Scan:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: { contents: read }
+    steps:
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Validate the request
+        id: target
+        env: { TITLE: "${{ github.event.issue.title }}" }
+        run: |
+          T=$(printf '%s' "$TITLE" | sed -E 's/^Scan:[[:space:]]*//' | tr -d '\r' | head -c 200)
+          if printf '%s' "$T" | grep -Eq '^https://[A-Za-z0-9.-]+(:[0-9]+)?(/[A-Za-z0-9._~/%-]*)?$'; then echo "kind=url" >> "$GITHUB_OUTPUT";
+          elif printf '%s' "$T" | grep -Eq '^(@[a-z0-9][a-z0-9._~-]*/)?[a-z0-9][a-z0-9._~-]*(@[0-9A-Za-z.+-]+)?$'; then echo "kind=npm" >> "$GITHUB_OUTPUT";
+          else echo "kind=invalid" >> "$GITHUB_OUTPUT"; fi
+          printf 'value=%s\n' "$T" >> "$GITHUB_OUTPUT"
+      - name: Run Saktum Check (passive)
+        if: steps.target.outputs.kind != 'invalid'
+        env: { TARGET: "${{ steps.target.outputs.value }}", KIND: "${{ steps.target.outputs.kind }}", npm_config_ignore_scripts: "true" }
+        run: |
+          mkdir out && cd out
+          if [ "$KIND" = url ]; then npx -y saktum@latest check --out report.json "$TARGET" > report.txt 2>&1 || true;
+          else npx -y saktum@latest check --out report.json --env npm_config_ignore_scripts=true -- npx -y "$TARGET" > report.txt 2>&1 || true; fi
+          tail -c 60000 report.txt > report-trimmed.txt
+      - name: Record an invalid request
+        if: steps.target.outputs.kind == 'invalid'
+        run: |
+          mkdir out
+          echo "The title must look like 'Scan: package-name' or 'Scan: https://host/mcp'." > out/report-trimmed.txt
+      - uses: actions/upload-artifact@v4
+        with: { name: scan, path: out/report-trimmed.txt }
+  comment:
+    needs: scan
+    runs-on: ubuntu-latest
+    permissions: { issues: write }
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { name: scan, path: out/ }
+      - name: Reply with the report
+        env: { GH_TOKEN: "${{ github.token }}", ISSUE: "${{ github.event.issue.number }}", REPO: "${{ github.repository }}" }
+        run: |
+          { echo "Saktum Check report (passive: no tool was called). Results describe the server at the time of the run; questions and false positives welcome here."; echo; echo '```'; cat out/report-trimmed.txt; echo '```'; } > body.md
+          gh issue comment "$ISSUE" --repo "$REPO" --body-file body.md

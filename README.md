@@ -4,7 +4,7 @@
 
 **The maturity model:** [Saktum MCP Maturity Model 1.0](docs/maturity-model.md), an open specification (CC BY 4.0).
 
-**Read the report:** [State of MCP Trust, November 2026](https://soodhere.github.io/saktum-index/) (aggregates only; no server is named).
+**Read the report:** [State of MCP Trust, December 2026](https://soodhere.github.io/saktum-index/) ([November](https://soodhere.github.io/saktum-index/2026-11.html)) (aggregates only; no server is named).
 
 A monthly census of the public MCP server ecosystem with [Saktum Check](https://github.com/soodhere/saktum-check),
 producing the **State of MCP Trust** report: the Saktum MCP Maturity Model, the trust quadrant, ecosystem statistics and

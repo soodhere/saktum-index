@@ -1,5 +1,9 @@
 # Saktum MCP Trust Census
 
+**The trust ledger:** [docs/ledger](docs/ledger/README.md), a public, append-only log of signed attestations for MCP servers (open an issue titled `Attest: …`, or run `saktum attest --publish`).
+
+**The maturity model:** [Saktum MCP Maturity Model 1.0](docs/maturity-model.md), an open specification (CC BY 4.0).
+
 **Read the report:** [State of MCP Trust, November 2026](https://soodhere.github.io/saktum-index/) (aggregates only; no server is named).
 
 A monthly census of the public MCP server ecosystem with [Saktum Check](https://github.com/soodhere/saktum-check),
@@ -38,3 +42,13 @@ At scale, `.github/workflows/census.yml` runs steps 1 to 4 across up to 20 paral
 - **Isolation:** packages are installed with install scripts disabled and run on disposable machines with no secrets.
   The scan bot runs untrusted code only in a job with a read-only token; the job that comments never runs untrusted code.
 - **Point in time:** results describe each package version at the time of the census and are not a guarantee of security.
+
+## Running the census (v2)
+
+One-time set-up (keeps individual results private even though workflow artifacts on a public repository are downloadable):
+1. `node scripts/sealing.mjs keys` creates `census-public.pem` (commit it) and `census-private.pem`.
+2. `gh secret set CENSUS_PRIVATE_KEY < census-private.pem`, then move `census-private.pem` somewhere safe outside the repository.
+
+Run: Actions, **census**, Run workflow (dry run first: deep_count 50, shards 2, remote_count 50). The `census-report`
+artifact holds the public aggregate report; `census-private-sealed` holds per-server results, which only you can open:
+`node scripts/sealing.mjs unseal private.sealed` (with `census-private.pem` in the folder).

@@ -6,8 +6,11 @@ import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node
 import { join } from "node:path";
 import { homedir, tmpdir } from "node:os";
 const [saktum, count = "200", offset = "0", conc = "6"] = process.argv.slice(2);
-const stat = JSON.parse(readFileSync("data/static.json", "utf8"));
-const pick = stat.filter((s) => !s.error && s.runnable && s.usesMcpSdk && !s.deprecated).sort((a, b) => b.weekly - a.weekly).slice(Number(offset), Number(offset) + Number(count));
+// Census v2: data/deep-list.json (from scripts/plan.mjs) holds npm and Python servers; otherwise npm only, as in v1.
+const source = existsSync("data/deep-list.json")
+  ? JSON.parse(readFileSync("data/deep-list.json", "utf8"))
+  : JSON.parse(readFileSync("data/static.json", "utf8")).filter((s) => !s.error && s.runnable && s.usesMcpSdk && !s.deprecated).sort((a, b) => b.weekly - a.weekly).map((s) => ({ kind: "npm", name: s.name, version: s.version, weekly: s.weekly, source: "npm" }));
+const pick = source.slice(Number(offset), Number(offset) + Number(count));
 mkdirSync("results", { recursive: true });
 const run = (cmd, args, opts, ms) => new Promise((res) => {
   const p = spawn(cmd, args, { ...opts, stdio: ["ignore", "ignore", "pipe"] });
@@ -21,9 +24,16 @@ const t0 = Date.now();
 async function worker() {
   while (i < pick.length) {
     const s = pick[i++];
-    const file = join(process.cwd(), "results", `${s.name.replace(/[@/]/g, "_")}.json`);
+    const file = join(process.cwd(), "results", `${s.kind === "pypi" ? "pypi_" : ""}${s.name.replace(/[@/]/g, "_")}.json`);
     if (existsSync(file) || existsSync(file.replace(/\.json$/, ".failed.json"))) { done++; continue; }
     const dir = join(tmpdir(), "census", s.name.replace(/[@/]/g, "_"));
+    const tag = () => { if (existsSync(file)) { const j = JSON.parse(readFileSync(file, "utf8")); Object.assign(j, { _name: s.name, _kind: s.kind, _source: s.source }); writeFileSync(file, JSON.stringify(j)); } };
+    if (s.kind === "pypi") {
+      // Python: wheels only (UV_NO_BUILD=1), so no package build scripts run; uv's cache is used instead of an install folder.
+      const chk = await run(process.execPath, [saktum, "check", "--out", file, "--env", "UV_NO_BUILD=1", "--", "uvx", "--no-build", `${s.name}@${s.version}`], {}, 180_000);
+      if (!existsSync(file)) fail(file, s, "start", chk.err || "did not start"); else tag();
+      done++; continue;
+    }
     try {
       const inst = await run("npm", ["install", "--ignore-scripts", "--no-audit", "--no-fund", "--loglevel=error", "--prefix", dir, `${s.name}@${s.version}`], {}, 240_000);
       if (inst.code !== 0) { fail(file, s, "install", inst.err || "install failed or timed out"); continue; }
@@ -32,7 +42,7 @@ async function worker() {
       if (!bins.length) { fail(file, s, "install", "no executable"); continue; }
       const entry = join(dir, "node_modules", s.name, bins[0]);
       const chk = await run(process.execPath, [saktum, "check", "--out", file, "--", process.execPath, entry], { cwd: dir }, 120_000);
-      if (!existsSync(file)) fail(file, s, "start", chk.err || "did not start");
+      if (!existsSync(file)) fail(file, s, "start", chk.err || "did not start"); else tag();
     } catch (e) { fail(file, s, "runner", e.message); }
     finally {
       rmSync(dir, { recursive: true, force: true });

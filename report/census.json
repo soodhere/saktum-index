@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-22T20:53:09.201Z",
+ "generatedAt": "2026-11-23T12:05:54.134Z",
  "method": "Saktum Check 0.2 (passive: no tool is called; install scripts disabled), npm registry metadata",
  "broad": {
   "discovered": 2808,
@@ -662,6 +662,23 @@
    }
   ],
   "trustA": 100,
-  "deepProvenance": 54.4
- }
+  "deepProvenance": 54.4,
+  "byKind": [
+   {
+    "kind": "npm",
+    "assessed": 103
+   },
+   {
+    "kind": "pypi",
+    "assessed": 0
+   }
+  ]
+ },
+ "protocolVersions": [
+  {
+   "version": "unknown",
+   "count": 103
+  }
+ ],
+ "edition": "November 2026"
 }

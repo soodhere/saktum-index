@@ -5,7 +5,19 @@ const b = c.broad, d = c.deep;
 const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
 const n = (x) => Number(x).toLocaleString("en-US");
 const pctOf = (x, t) => (t ? Math.round((100 * x) / t) : 0);
-const month = new Date(c.generatedAt).toLocaleString("en-US", { month: "long", year: "numeric" });
+const month = c.edition ?? new Date(c.generatedAt).toLocaleString("en-US", { month: "long", year: "numeric" });
+const rm = c.remote;
+const remoteSection = rm ? `<h2>Remote servers and sign-in</h2>
+<p class="muted">Passive checks on ${n(rm.attempted)} remote MCP servers listed in the official MCP Registry: exactly what an MCP client does when it connects, without credentials. ${n(rm.reached)} answered; ${n(rm.sseOnly)} offer only the legacy SSE transport; ${n(rm.unreachable)} could not be reached.</p>
+<div class="cards">
+<div class="card"><div class="big">${n(rm.requireSignIn)}</div><div class="sub">require sign-in (${n(rm.public)} are public)</div></div>
+<div class="card"><div class="big">${rm.signIn.fullDiscoveryPct}%</div><div class="sub">of those implement full sign-in discovery as the MCP specification requires (RFC 9728 challenge and metadata, server metadata with PKCE, invalid tokens refused)</div></div>
+<div class="card"><div class="big">${n(rm.signIn.resourceMetadata)}</div><div class="sub">publish protected resource metadata (RFC 9728)</div></div>
+<div class="card"><div class="big">${n(rm.signIn.rejectsInvalidToken)}</div><div class="sub">refuse an invalid token with 401 or 403</div></div>
+</div>` : "";
+const protoRows = (c.protocolVersions ?? []).filter((x) => x.version !== "unknown").map((x) => `<tr><td>${esc(x.version)}</td><td class="num">${n(x.count)}</td></tr>`).join("");
+const protoSection = protoRows ? `<h2>MCP protocol versions in use</h2><p class="muted">The protocol revision each server negotiated with Saktum Check (servers requiring sign-in are not counted, as the census never signs in).</p><div class="panel"><table><tr><th>Revision</th><th class="num">Servers</th></tr>${protoRows}</table></div>` : "";
+const kinds = (d.byKind ?? []).filter((k) => k.assessed).map((k) => `${n(k.assessed)} ${k.kind === "pypi" ? "Python" : "npm"}`).join(" and ");
 const LEVELS = [
   ["L1", "Responds", "Starts, completes the MCP handshake and lists its tools."],
   ["L2", "Conformant", "No failed conformance checks: valid input schemas, valid names, honest handling of unknown tools."],
@@ -67,7 +79,7 @@ footer{margin-top:44px;color:var(--muted);font-size:14px;border-top:1px solid va
 <p class="lede">How ready are the MCP servers that AI agents depend on? We examined the ${n(b.scanned)} most-relevant MCP server packages on npm, covering ${n(b.weeklyDownloadsCovered)} weekly downloads, and ran Saktum Check on the ${n(d.attempted)} most-used servers. Here’s what we found, and what maintainers can fix this week.</p>
 <div class="cards">
 <div class="card"><div class="big">${n(b.scanned)}</div><div class="sub">MCP server packages in the supply-chain census (of ${n(b.npmTaggedMcpServer ?? b.discovered)} tagged on npm)</div></div>
-<div class="card"><div class="big">${n(d.assessed)}</div><div class="sub">most-used servers fully assessed with Saktum Check (${n(d.weeklyDownloadsAssessed)} weekly downloads)</div></div>
+<div class="card"><div class="big">${n(d.assessed)}</div><div class="sub">servers fully assessed with Saktum Check${kinds ? ` (${kinds})` : ""}${d.weeklyDownloadsAssessed ? `, ${n(d.weeklyDownloadsAssessed)} weekly npm downloads` : ""}</div></div>
 <div class="card"><div class="big">${pctOf(d.maturity[4].atLeast, d.assessed)}%</div><div class="sub">reach L5 Assured, the top of the maturity model</div></div>
 <div class="card"><div class="big">${d.noAnnotations}%</div><div class="sub">declare no danger annotations, so clients can’t warn before risky actions</div></div>
 </div>
@@ -86,6 +98,8 @@ footer{margin-top:44px;color:var(--muted);font-size:14px;border-top:1px solid va
 <div class="panel"><b>Agent readiness</b><p>${d.noAnnotations}% of servers declare no danger annotations and ${d.partialAnnotations}% declare them on only some tools. ${d.readinessA}% earn agent readiness A. Tool definitions cost a median of ${n(d.tokensMedian)} tokens per agent turn (90th percentile ${n(d.tokensP90)}), and ${n(d.over20k)} servers exceed 20,000 tokens before an agent does any work.</p></div>
 <div class="panel"><b>Trust checks that fail most</b><table>${fails}</table><p class="muted">${d.trustA}% of assessed servers earn trust A on these checks: most popular servers handle the basics well.</p></div>
 </div>
+${remoteSection}
+${protoSection}
 <h2>What these servers can do</h2>
 <p class="muted">Capabilities declared by annotations or conservatively inferred from tool names and descriptions. ${n(d.trifecta)} server${d.trifecta === 1 ? "" : "s"} combine private data, untrusted content and an outbound channel (the “lethal trifecta”).</p>
 <div class="panel"><svg viewBox="0 0 640 ${d.capabilities.length * 34}" role="img" aria-label="Capability prevalence">${capBars}</svg></div>

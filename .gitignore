@@ -1,4 +1,7 @@
 results/
+results-remote/
 report/servers-private.csv
 node_modules/
 deep.log
+census-private.pem
+*.sealed

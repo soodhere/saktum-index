@@ -1,0 +1,9 @@
+name: Publish an attestation to the trust ledger
+description: Record a signed Saktum attestation for your MCP server in the public, append-only ledger.
+title: "Attest: "
+labels: [attestation]
+body:
+  - type: markdown
+    attributes: { value: "Easiest: run `npx saktum attest saktum-report.json --publish` and open the link it prints. Or paste the attestation JSON below in a json code block." }
+  - type: textarea
+    attributes: { label: Attestation, render: json }

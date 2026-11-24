@@ -1,0 +1,51 @@
+# The Saktum trust ledger bot: an issue titled "Attest: <server>" whose body holds a signed Saktum attestation (made with
+# `saktum attest --publish`) is verified and appended to docs/ledger/ledger.jsonl, an append-only, hash-chained log.
+# This job writes to the repository, so it never runs anyone's code: the issue body is data, read through an environment
+# variable and parsed as JSON by Saktum's own verifier. Appends are serialised so the chain cannot fork.
+name: ledger
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: ledger
+  cancel-in-progress: false
+jobs:
+  append:
+    if: startsWith(github.event.issue.title, 'Attest:')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Verify and append
+        id: append
+        env: { BODY: "${{ github.event.issue.body }}", ISSUE: "${{ github.event.issue.number }}" }
+        run: |
+          printf '%s' "$BODY" | head -c 40000 > /tmp/body.md
+          if npx -y saktum@latest ledger append /tmp/body.md --ledger docs/ledger/ledger.jsonl --issue "$ISSUE" > /tmp/out.txt 2>&1; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
+          cat /tmp/out.txt
+      - name: Commit the new entry
+        if: steps.append.outputs.ok == 'true'
+        run: |
+          npx -y saktum@latest ledger verify docs/ledger/ledger.jsonl
+          git config user.name "saktum-ledger-bot"
+          git config user.email "saktum-ledger-bot@users.noreply.github.com"
+          git add docs/ledger/ledger.jsonl
+          git commit -m "Ledger: entry for issue #${{ github.event.issue.number }}"
+          git push
+      - name: Reply
+        if: always()
+        env: { GH_TOKEN: "${{ github.token }}", ISSUE: "${{ github.event.issue.number }}", OK: "${{ steps.append.outputs.ok }}" }
+        run: |
+          if [ "$OK" = "true" ]; then
+            { echo "Recorded in the public Saktum trust ledger:"; echo; echo '```'; tail -c 2000 /tmp/out.txt; echo '```'; echo; echo "Anyone can verify the whole ledger with \`npx saktum ledger verify\`. Entries are signed claims; the assurance level is stated in each."; } > reply.md
+            gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file reply.md
+            gh issue close "$ISSUE" --repo "$GITHUB_REPOSITORY"
+          else
+            { echo "Not recorded:"; echo; echo '```'; tail -c 2000 /tmp/out.txt 2>/dev/null; echo '```'; echo; echo "Make the attestation with \`npx saktum attest saktum-report.json --publish\` and use the link it prints."; } > reply.md
+            gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file reply.md
+          fi

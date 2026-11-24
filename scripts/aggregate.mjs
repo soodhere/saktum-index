@@ -34,7 +34,7 @@ const quadrant = (r) => (r.trust >= 90 ? (r.readiness >= 90 ? "Leaders" : "Safe 
 const checkFailCounts = {};
 for (const r of A) for (const c of [...r.confFails, ...r.secFails]) checkFailCounts[c] = (checkFailCounts[c] ?? 0) + 1;
 const census = {
-  generatedAt: new Date().toISOString(), method: "Saktum Check 0.2 (passive: no tool is called; install scripts disabled), npm registry metadata",
+  generatedAt: new Date().toISOString(), method: `Saktum Check ${[...new Set(deep.map((r) => r.tool?.version).filter(Boolean))].join(", ") || "(unknown version)"} (passive: no tool is called; npm install scripts disabled; Python wheels only), npm registry metadata, official MCP Registry`,
   broad: { discovered: disc.count, npmTaggedMcpServer: disc.totalTaggedMcpServer, scanned: stat.length,
     runnable: stat.filter((s) => s.runnable).length, usesMcpSdk: pct(stat.filter((s) => s.usesMcpSdk).length, stat.length),
     provenance: pct(stat.filter((s) => s.provenance).length, stat.length), installScripts: pct(stat.filter((s) => s.installScripts.length).length, stat.length),

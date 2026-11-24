@@ -8,8 +8,16 @@ async function worker() {
   while (i < packages.length) {
     const p = packages[i++];
     let m;
-    try { const r = await fetch(`https://registry.npmjs.org/${p.name.replace("/", "%2f")}/latest`); if (!r.ok) { out.push({ name: p.name, error: `HTTP ${r.status}` }); continue; } m = await r.json(); }
-    catch (e) { out.push({ name: p.name, error: String(e.message).slice(0, 80) }); continue; }
+    // npm rate-limits busy shared addresses (such as CI runners): retry 429 and 5xx with exponential back-off.
+    for (let attempt = 0; attempt < 6 && !m; attempt++) {
+      try {
+        const r = await fetch(`https://registry.npmjs.org/${p.name.replace("/", "%2f")}/latest`, { headers: { "User-Agent": "saktum-census (+https://github.com/soodhere/saktum-index)" } });
+        if (r.status === 429 || r.status >= 500) { const wait = Number(r.headers.get("retry-after")) * 1000 || 1000 * 2 ** attempt; await new Promise((res) => setTimeout(res, Math.min(wait, 30_000))); continue; }
+        if (!r.ok) { out.push({ name: p.name, error: `HTTP ${r.status}` }); break; }
+        m = await r.json();
+      } catch (e) { if (attempt === 5) out.push({ name: p.name, error: String(e.message).slice(0, 80) }); else await new Promise((res) => setTimeout(res, 1000 * 2 ** attempt)); }
+    }
+    if (!m) { if (!out.some((x) => x.name === p.name)) out.push({ name: p.name, error: "gave up after retries" }); continue; }
     const deps = { ...(m.dependencies ?? {}) };
     const scripts = m.scripts ?? {};
     const bin = typeof m.bin === "string" ? { [m.name]: m.bin } : (m.bin ?? {});
@@ -27,10 +35,11 @@ async function worker() {
     });
   }
 }
-await Promise.all(Array.from({ length: 24 }, worker));
+await Promise.all(Array.from({ length: 8 }, worker));
 writeFileSync("data/static.json", JSON.stringify(out, null, 1));
 const ok = out.filter((x) => !x.error);
 const pct = (f) => `${Math.round((100 * ok.filter(f).length) / ok.length)}%`;
-console.log(`scanned ${ok.length} of ${packages.length} (${out.length - ok.length} errors)`);
+const errs = out.filter((x) => x.error);
+console.log(`scanned ${ok.length} of ${packages.length} (${errs.length} errors${errs.length ? `: ${[...new Set(errs.map((x) => x.error))].slice(0, 5).join(", ")}` : ""})`);
 console.log("runnable servers (bin):", ok.filter((x) => x.runnable).length, "| uses an MCP SDK:", pct((x) => x.usesMcpSdk));
 console.log("provenance:", pct((x) => x.provenance), "| install scripts:", pct((x) => x.installScripts.length), "| deprecated:", pct((x) => x.deprecated), "| no licence:", pct((x) => !x.license), "| no repository link:", pct((x) => !x.repository));

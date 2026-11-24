@@ -17,6 +17,10 @@ for (const p of pypi.slice(0, pypiTop)) deep.set(`pypi:${p.name}`, p);
 const remotes = [];
 const seen = new Set();
 for (const s of reg) for (const r of s.remotes) if (!seen.has(r.url)) { seen.add(r.url); remotes.push({ name: s.name, url: r.url, type: r.type }); }
-writeFileSync("data/deep-list.json", JSON.stringify([...deep.values()], null, 1));
+// Interleave Python servers through the npm list (about one in four), so every run, even a small one, samples both.
+const npmList = [...deep.values()].filter((d) => d.kind === "npm"), pyList = [...deep.values()].filter((d) => d.kind === "pypi");
+const mixed = [];
+while (npmList.length || pyList.length) { for (let k = 0; k < 3 && npmList.length; k++) mixed.push(npmList.shift()); if (pyList.length) mixed.push(pyList.shift()); }
+writeFileSync("data/deep-list.json", JSON.stringify(mixed, null, 1));
 writeFileSync("data/remote-list.json", JSON.stringify(remotes.slice(0, remoteTop), null, 1));
 console.log(`plan: deep ${deep.size} (npm ${[...deep.values()].filter((d) => d.kind === "npm").length}, pypi ${[...deep.values()].filter((d) => d.kind === "pypi").length}); remote ${Math.min(remotes.length, remoteTop)} of ${remotes.length} (streamable-http ${remotes.filter((r) => r.type.includes("streamable")).length}, sse ${remotes.filter((r) => r.type === "sse").length})`);

@@ -32,9 +32,10 @@ jobs:
         if: steps.append.outputs.ok == 'true'
         run: |
           npx -y saktum@latest ledger verify docs/ledger/ledger.jsonl
+          npx -y saktum@latest ledger pages docs/ledger/ledger.jsonl --out docs/passports
           git config user.name "saktum-ledger-bot"
           git config user.email "saktum-ledger-bot@users.noreply.github.com"
-          git add docs/ledger/ledger.jsonl
+          git add docs/ledger/ledger.jsonl docs/passports
           git commit -m "Ledger: entry for issue #${{ github.event.issue.number }}"
           git push
       - name: Reply
@@ -42,7 +43,7 @@ jobs:
         env: { GH_TOKEN: "${{ github.token }}", ISSUE: "${{ github.event.issue.number }}", OK: "${{ steps.append.outputs.ok }}" }
         run: |
           if [ "$OK" = "true" ]; then
-            { echo "Recorded in the public Saktum trust ledger:"; echo; echo '```'; tail -c 2000 /tmp/out.txt; echo '```'; echo; echo "Anyone can verify the whole ledger with \`npx saktum ledger verify\`. Entries are signed claims; the assurance level is stated in each."; } > reply.md
+            { echo "Recorded in the public Saktum trust ledger:"; echo; echo '```'; tail -c 2000 /tmp/out.txt; echo '```'; echo; echo "Anyone can verify the whole ledger with \`npx saktum ledger verify\`. Entries are signed claims; the assurance level is stated in each."; echo; echo "Passport: https://soodhere.github.io/saktum-index/passports/"; } > reply.md
             gh issue comment "$ISSUE" --repo "$GITHUB_REPOSITORY" --body-file reply.md
             gh issue close "$ISSUE" --repo "$GITHUB_REPOSITORY"
           else

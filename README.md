@@ -1,5 +1,7 @@
 # Saktum MCP Trust Census
 
+**Passports:** [MCP Server Passports](https://soodhere.github.io/saktum-index/passports/), a visual page for every server whose publisher recorded an attestation.
+
 **The trust ledger:** [docs/ledger](docs/ledger/README.md), a public, append-only log of signed attestations for MCP servers (open an issue titled `Attest: …`, or run `saktum attest --publish`).
 
 **The maturity model:** [Saktum MCP Maturity Model 1.0](docs/maturity-model.md), an open specification (CC BY 4.0).

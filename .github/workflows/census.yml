@@ -18,9 +18,9 @@ jobs:
     outputs:
       shards: ${{ steps.m.outputs.shards }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 22 }
       - name: Discover (npm and the official MCP Registry) and plan
         run: |
@@ -30,7 +30,7 @@ jobs:
           node scripts/plan.mjs 800 300 ${{ inputs.remote_count }}
       - id: m
         run: echo "shards=$(node -e 'const n=Math.min(20,Number(process.argv[1]));console.log(JSON.stringify([...Array(n).keys()]))' ${{ inputs.shards }})" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with: { name: data, path: data/ }
   deep:
     needs: plan
@@ -40,50 +40,50 @@ jobs:
       fail-fast: false
       matrix: { shard: "${{ fromJSON(needs.plan.outputs.shards) }}" }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 22 }
       - uses: astral-sh/setup-uv@v5
       - uses: actions/download-artifact@v4
         with: { name: data, path: data/ }
       - name: Install Saktum Check
-        run: npm install -g saktum@latest && echo "SAKTUM=$(npm root -g)/saktum/saktum.mjs" >> "$GITHUB_ENV"
+        run: npm install -g saktum@0.12.0 && echo "SAKTUM=$(npm root -g)/saktum/saktum.mjs" >> "$GITHUB_ENV"
       - name: Deep census (passive; npm install scripts disabled; Python wheels only; no secrets present)
         run: |
           PER=$(( ${{ inputs.deep_count }} / ${{ inputs.shards }} + 1 ))
           node scripts/deep.mjs "$SAKTUM" "$PER" "$(( ${{ matrix.shard }} * PER ))" 6
       - name: Seal per-server results (artifacts on a public repository are downloadable)
         run: node scripts/sealing.mjs seal results "deep-${{ matrix.shard }}.sealed"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with: { name: "sealed-deep-${{ matrix.shard }}", path: "deep-${{ matrix.shard }}.sealed" }
   remote:
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 22 }
       - uses: actions/download-artifact@v4
         with: { name: data, path: data/ }
       - name: Install Saktum Check
-        run: npm install -g saktum@latest && echo "SAKTUM=$(npm root -g)/saktum/saktum.mjs" >> "$GITHUB_ENV"
+        run: npm install -g saktum@0.12.0 && echo "SAKTUM=$(npm root -g)/saktum/saktum.mjs" >> "$GITHUB_ENV"
       - name: Remote servers (passive; no credentials; one probe set each)
         run: node scripts/remote.mjs "$SAKTUM" ${{ inputs.remote_count }} 0 8
       - name: Seal per-server results
         run: node scripts/sealing.mjs seal results-remote remote.sealed
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with: { name: sealed-remote, path: remote.sealed }
   aggregate:
     needs: [deep, remote]
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: { persist-credentials: false }
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 22 }
       - uses: actions/download-artifact@v4
         with: { name: data, path: data/ }
@@ -97,8 +97,8 @@ jobs:
           node scripts/aggregate.mjs && node scripts/render.mjs
           node scripts/sealing.mjs seal results results-remote report/servers-private.csv private.sealed
       - name: Public report (aggregates only)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with: { name: census-report, path: "report/index.html\nreport/census.json" }
       - name: Private results (sealed; open locally with scripts/sealing.mjs unseal)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with: { name: census-private-sealed, path: private.sealed }

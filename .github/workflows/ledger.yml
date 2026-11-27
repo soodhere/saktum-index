@@ -18,21 +18,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 22 }
       - name: Verify and append
         id: append
         env: { BODY: "${{ github.event.issue.body }}", ISSUE: "${{ github.event.issue.number }}" }
         run: |
           printf '%s' "$BODY" | head -c 40000 > /tmp/body.md
-          if npx -y saktum@latest ledger append /tmp/body.md --ledger docs/ledger/ledger.jsonl --issue "$ISSUE" > /tmp/out.txt 2>&1; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
+          if npx -y saktum@0.12.0 ledger append /tmp/body.md --ledger docs/ledger/ledger.jsonl --issue "$ISSUE" > /tmp/out.txt 2>&1; then echo "ok=true" >> "$GITHUB_OUTPUT"; else echo "ok=false" >> "$GITHUB_OUTPUT"; fi
           cat /tmp/out.txt
       - name: Commit the new entry
         if: steps.append.outputs.ok == 'true'
         run: |
-          npx -y saktum@latest ledger verify docs/ledger/ledger.jsonl
-          npx -y saktum@latest ledger pages docs/ledger/ledger.jsonl --out docs/passports
+          npx -y saktum@0.12.0 ledger verify docs/ledger/ledger.jsonl
+          npx -y saktum@0.12.0 ledger pages docs/ledger/ledger.jsonl --out docs/passports
           git config user.name "saktum-ledger-bot"
           git config user.email "saktum-ledger-bot@users.noreply.github.com"
           git add docs/ledger/ledger.jsonl docs/passports
